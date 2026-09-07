@@ -195,10 +195,21 @@ export default function App() {
   };
 
   const handleTasksUpdate = async (newTasks: Task[]) => {
-    // We can find the diff (the task that changed status).
+    // We can find the diff (the task that changed status or any other field).
     const changedTask = newTasks.find(nt => {
       const oldTask = tasks.find(t => t.id === nt.id);
-      return !oldTask || oldTask.status !== nt.status || oldTask.priority !== nt.priority || oldTask.assigneeId !== nt.assigneeId;
+      if (!oldTask) return true; // new task
+      // Compare all fields that could be mutated
+      return (
+        oldTask.status !== nt.status ||
+        oldTask.priority !== nt.priority ||
+        oldTask.assigneeId !== nt.assigneeId ||
+        oldTask.title !== nt.title ||
+        oldTask.description !== nt.description ||
+        oldTask.dueDate !== nt.dueDate ||
+        JSON.stringify(oldTask.tags) !== JSON.stringify(nt.tags) ||
+        JSON.stringify(oldTask.subtasks) !== JSON.stringify(nt.subtasks)
+      );
     });
 
     if (changedTask) {
@@ -213,13 +224,18 @@ export default function App() {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            title: changedTask.title,
+            description: changedTask.description,
             status: changedTask.status,
             priority: changedTask.priority,
             assigneeId: changedTask.assigneeId,
+            dueDate: changedTask.dueDate,
+            tags: changedTask.tags,
+            subtasks: changedTask.subtasks,
           })
         }).catch((e) => {
           console.error(e);
-          toast.error('Failed to update task status');
+          toast.error('Failed to update task');
         });
       } else {
         // It's a creation (handled elsewhere usually, but just in case)

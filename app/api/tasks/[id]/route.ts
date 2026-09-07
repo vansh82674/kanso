@@ -44,6 +44,7 @@ export async function PATCH(
       assigneeId,
       dueDate,
       tags,
+      subtasks, // Expect an array of { id?: string, title: string, completed: boolean }
     } = body;
 
     const dataToUpdate: any = {};
@@ -54,6 +55,17 @@ export async function PATCH(
     if (assigneeId !== undefined) dataToUpdate.assigneeId = assigneeId || null;
     if (dueDate !== undefined) dataToUpdate.dueDate = dueDate ? new Date(dueDate) : null;
     if (tags !== undefined) dataToUpdate.tags = tags;
+
+    // Handle subtasks if provided
+    if (subtasks !== undefined) {
+      dataToUpdate.subtasks = {
+        deleteMany: {}, // Delete all existing subtasks
+        create: subtasks.map((st: any) => ({
+          title: st.title,
+          completed: Boolean(st.completed),
+        })), // Recreate them
+      };
+    }
 
     const updatedTask = await prisma.task.update({
       where: { id },
