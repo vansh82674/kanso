@@ -1,6 +1,18 @@
-# KANSO - Next.js & Supabase PostgreSQL Team Task Board
+# KANSO v1 - Next.js & Supabase PostgreSQL Team Task Board
 
 A high-throughput, modern Trello-like team productivity workspace engineered with **Next.js (App Router)**, **TypeScript**, **Tailwind CSS**, **Prisma ORM**, and **Supabase PostgreSQL**.
+
+---
+
+## ✨ V1 Features
+
+- **Supabase Authentication**: Secure email and password authentication out-of-the-box (`@supabase/ssr`).
+- **PostgreSQL Database**: Powered by Supabase Postgres and managed via Prisma ORM.
+- **Dynamic Workspaces**: Create multi-tenant projects with unique colors and switch between them instantly.
+- **Secure Workspace Invitations**: A robust, opt-in invite system that generates secure tokens (`/join?token=...`) with a dedicated landing page for users to accept or decline invites.
+- **Real-time Kanban Engine**: Drag-and-drop tasks across columns. Changes are saved instantly to the database.
+- **Task Management**: Create, edit, duplicate, and safely delete tasks via custom, sleek confirmation modals.
+- **UI & UX Polish**: Features beautiful loading skeletons, global `react-hot-toast` notifications, and custom scrollbars.
 
 ---
 
@@ -38,18 +50,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-public-key"
 Initialize the schema and generate the Prisma Client:
 ```bash
 npx prisma generate
-npx prisma migrate dev --name init
+npx prisma db push
 ```
 
-### 5. Seed Initial Data (Workspaces, Team Members, Tasks)
-Populate your Supabase database with realistic team members, tickets, and columns:
+### 5. Launch the Next.js Development Server
 ```bash
-npm run prisma:seed
-```
-
-### 6. Launch the Next.js Development Server
-```bash
-npm run dev:next
+npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) to view the application.
 
@@ -60,36 +66,29 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 ```
 ├── app/
 │   ├── api/
-│   │   ├── tasks/
-│   │   │   ├── route.ts          # GET (list tasks by workspace), POST (create task)
-│   │   │   └── [id]/route.ts     # PATCH (status, priority, assignee), DELETE
-│   │   ├── workspaces/
-│   │   │   └── route.ts          # GET (all workspaces), POST (new workspace)
-│   │   └── members/
-│   │       └── route.ts          # POST (invite new team member)
-│   ├── layout.tsx                # Next.js App Router root layout & fonts
-│   ├── page.tsx                  # Home route
-│   └── globals.css               # Tailwind CSS & Geist Mono variable definitions
+│   │   ├── invites/          # GET, POST (accept/decline invites securely)
+│   │   ├── tasks/            # GET, POST, PATCH, DELETE (Task CRUD)
+│   │   ├── workspaces/       # GET, POST (Workspace CRUD)
+│   │   └── members/          # POST (generate invite tokens)
+│   ├── join/                 # /join?token=... landing page for invites
+│   ├── login/                # Supabase auth login / signup page
+│   ├── dashboard/            # Protected Kanban dashboard
+│   ├── layout.tsx            # Next.js App Router root layout & fonts
+│   └── page.tsx              # Landing page
 │
 ├── prisma/
-│   ├── schema.prisma             # Data models: User, Workspace, Member, Task, Subtask
-│   └── seed.ts                   # Realistic engineering team seed data
+│   ├── schema.prisma         # Data models
 │
 ├── lib/
-│   ├── prisma.ts                 # Cached Prisma Client instance
-│   ├── supabase.ts               # Supabase JS Client
-│   └── utils.ts                  # cn, formatting, date helpers
+│   ├── prisma.ts             # Cached Prisma Client instance
+│   ├── supabase/             # Supabase client / server setup
+│   └── auth-utils.ts         # Authentication helper functions
 │
-├── src/                          # Modular React UI components & board engine
+├── src/                      # Modular React UI components & board engine
 │   ├── components/
-│   │   ├── kanban/               # KanbanBoard, KanbanColumn, TaskCard, TaskDetailModal, NewTaskModal
-│   │   ├── navigation/           # Header, WorkspaceSwitcher
-│   │   ├── workspace/            # CreateWorkspaceModal, InviteMemberModal
-│   │   └── ui/                   # Button, Badge, Modal, Input, Avatar
-│   └── types.ts                  # Shared TypeScript interfaces & enums
-│
-├── next.config.mjs               # Next.js configuration
-└── package.json                  # Dependencies & scripts
+│   │   ├── kanban/           # KanbanBoard, KanbanColumn, TaskCard, TaskDetailModal
+│   │   ├── workspace/        # CreateWorkspaceModal, InviteMemberModal
+│   │   └── ui/               # Button, Badge, Modal, Input, ConfirmModal
 ```
 
 ---
@@ -99,19 +98,6 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 - **User**: Profile information (`email`, `name`, `avatar`, `role`).
 - **Workspace**: Multi-tenant projects (`name`, `slug`, `color`, `description`).
 - **WorkspaceMember**: Connects users to workspaces with granular roles (`OWNER`, `ADMIN`, `MEMBER`, `VIEWER`).
+- **WorkspaceInvite**: Secure pending invitation tokens with expirations.
 - **Task**: Tickets (`ticketId`, `title`, `description`, `status`, `priority`, `dueDate`, `tags`).
 - **Subtask**: Hierarchical checklists with completion progress.
-
----
-
-## 🚀 Useful Scripts
-
-| Script | Purpose |
-|---|---|
-| `npm run dev:next` | Start Next.js App Router local server |
-| `npm run build:next` | Build Next.js for production |
-| `npm run prisma:generate` | Regenerate Prisma Client types |
-| `npm run prisma:migrate` | Apply schema migrations to Supabase Postgres |
-| `npm run prisma:studio` | Launch visual Prisma Studio database GUI |
-| `npm run prisma:seed` | Seed initial database records |
-| `npm run dev` | Start Vite development preview |
