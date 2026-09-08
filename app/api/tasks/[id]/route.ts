@@ -24,7 +24,7 @@ async function checkTaskAccess(taskId: string, userId: string) {
 // PATCH /api/tasks/[id]
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { dbUser } = await requireAuth();
@@ -101,7 +101,7 @@ export async function PATCH(
 // DELETE /api/tasks/[id]
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { dbUser } = await requireAuth();

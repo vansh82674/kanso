@@ -7,7 +7,7 @@ import { Button } from '../ui/Button';
 import { Task, TaskPriority, TaskStatus, WorkspaceMember } from '../../types';
 import { COLUMNS } from '../../data/initialData';
 import { generateId } from '../../lib/utils';
-import { Tag, Plus, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 
 interface NewTaskModalProps {
   isOpen: boolean;
@@ -144,7 +144,7 @@ export function NewTaskModal({
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as TaskStatus)}
-              className="w-full h-8 px-2.5 rounded border border-zinc-800 bg-zinc-900 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-500"
+              className="w-full h-8 px-2.5 rounded border bg-zinc-900 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-500"
             >
               {COLUMNS.map((col) => (
                 <option key={col.id} value={col.id}>
@@ -162,7 +162,7 @@ export function NewTaskModal({
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as TaskPriority)}
-              className="w-full h-8 px-2.5 rounded border border-zinc-800 bg-zinc-900 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-500"
+              className="w-full h-8 px-2.5 rounded border bg-zinc-900 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-500"
             >
               <option value="urgent">Urgent</option>
               <option value="high">High</option>
@@ -179,7 +179,7 @@ export function NewTaskModal({
             <select
               value={assigneeId || ''}
               onChange={(e) => setAssigneeId(e.target.value || undefined)}
-              className="w-full h-8 px-2.5 rounded border border-zinc-800 bg-zinc-900 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-500"
+              className="w-full h-8 px-2.5 rounded border bg-zinc-900 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-500"
             >
               <option value="">Unassigned</option>
               {members.map((m) => (
@@ -199,7 +199,7 @@ export function NewTaskModal({
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full h-8 px-2.5 rounded border border-zinc-800 bg-zinc-900 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-500"
+              className="w-full h-8 px-2.5 rounded border bg-zinc-900 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-500"
             />
           </div>
         </div>
@@ -237,7 +237,7 @@ export function NewTaskModal({
                   }
                 }}
                 placeholder="+ Tag..."
-                className="h-7 w-24 text-xs font-mono bg-zinc-950 border border-zinc-800 rounded px-2 text-zinc-200 focus:outline-none focus:border-zinc-500"
+                className="h-7 w-24 text-xs font-mono bg-zinc-950 border rounded px-2 text-zinc-200 focus:outline-none focus:border-zinc-500"
               />
               <button
                 type="button"

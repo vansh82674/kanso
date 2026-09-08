@@ -88,23 +88,87 @@ export default function App() {
   useEffect(() => {
     if (!currentWorkspaceId) return;
 
+    let isMounted = true;
+
     const fetchTasks = async () => {
       setIsLoadingData(true);
       try {
         const res = await fetch(`/api/tasks?workspaceId=${currentWorkspaceId}`);
         if (!res.ok) throw new Error('Failed to fetch tasks');
         const data = await res.json();
-        setTasks(data);
+        if (isMounted) setTasks(data);
       } catch (err: any) {
         console.error(err);
         toast.error('Failed to load tasks');
       } finally {
-        setIsLoadingData(false);
+        if (isMounted) setIsLoadingData(false);
       }
     };
 
     fetchTasks();
-  }, [currentWorkspaceId]);
+
+    // Setup realtime subscription
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'Task',
+        },
+        (payload) => {
+          // Filter by workspace ID manually on the client for INSERT/UPDATE
+          if (payload.eventType !== 'DELETE') {
+            const record = payload.new;
+            if (record && record.workspaceId !== currentWorkspaceId) {
+              return;
+            }
+          }
+
+          if (payload.eventType === 'INSERT') {
+            const newTask = payload.new as any;
+            const formattedTask = {
+              ...newTask,
+              status: newTask.status?.toLowerCase(),
+              priority: newTask.priority?.toLowerCase(),
+              tags: newTask.tags || [],
+              subtasks: [],
+            };
+            setTasks((prev) => {
+              if (prev.some((t) => t.id === formattedTask.id)) return prev;
+              return [...prev, formattedTask];
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedTask = payload.new as any;
+            setTasks((prev) => prev.map((t) => {
+              if (t.id === updatedTask.id) {
+                return {
+                  ...t,
+                  ...updatedTask,
+                  status: updatedTask.status?.toLowerCase(),
+                  priority: updatedTask.priority?.toLowerCase(),
+                  tags: updatedTask.tags || t.tags || [],
+                  subtasks: t.subtasks || [],
+                };
+              }
+              return t;
+            }));
+          } else if (payload.eventType === 'DELETE') {
+            const deletedTask = payload.old as any;
+            setTasks((prev) => prev.filter((t) => t.id !== deletedTask.id));
+          }
+        }
+      )
+      .subscribe((status, err) => {
+        console.log('Supabase realtime status:', status, err);
+      });
+
+    return () => {
+      isMounted = false;
+      supabase.removeChannel(channel);
+    };
+  }, [currentWorkspaceId, supabase]);
 
   // Keyboard shortcut listener: 'N' for new task
   useEffect(() => {

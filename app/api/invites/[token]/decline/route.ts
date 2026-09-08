@@ -5,12 +5,12 @@ import { NextResponse } from 'next/server';
 // POST /api/invites/[token]/decline
 export async function POST(
   request: Request,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
     // Require auth just so random people can't decline invites, although technically an invite token is a secret
     await requireAuth();
-    const { token } = params;
+    const { token } = await Promise.resolve(params);
 
     const invite = await prisma.workspaceInvite.findUnique({
       where: { token },

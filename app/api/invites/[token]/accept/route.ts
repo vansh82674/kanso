@@ -5,11 +5,11 @@ import { NextResponse } from 'next/server';
 // POST /api/invites/[token]/accept
 export async function POST(
   request: Request,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
     const { dbUser } = await requireAuth();
-    const { token } = params;
+    const { token } = await Promise.resolve(params);
 
     const invite = await prisma.workspaceInvite.findUnique({
       where: { token },

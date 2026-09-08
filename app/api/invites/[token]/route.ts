@@ -4,10 +4,10 @@ import { NextResponse } from 'next/server';
 // GET /api/invites/[token]
 export async function GET(
   request: Request,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
-    const { token } = params;
+    const { token } = await Promise.resolve(params);
 
     const invite = await prisma.workspaceInvite.findUnique({
       where: { token },
