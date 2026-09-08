@@ -13,6 +13,7 @@ interface TaskCardProps {
   onDragStart: (e: React.DragEvent, task: Task) => void;
   onDragEnd: (e: React.DragEvent) => void;
   isDragging?: boolean;
+  isDraggable?: boolean;
 }
 
 export function TaskCard({
@@ -22,17 +23,22 @@ export function TaskCard({
   onDragStart,
   onDragEnd,
   isDragging = false,
+  isDraggable = true,
 }: TaskCardProps) {
   const completedSubtasks = task.subtasks.filter((st) => st.completed).length;
   const overdue = isOverdue(task.dueDate) && task.status !== 'done';
 
   return (
     <div
-      draggable
-      onDragStart={(e) => onDragStart(e, task)}
+      draggable={isDraggable}
+      onDragStart={(e) => {
+        if (isDraggable) onDragStart(e, task);
+      }}
       onDragEnd={onDragEnd}
       onClick={onClick}
-      className={`group relative rounded-lg border bg-zinc-900/80 p-3.5 shadow-xs transition-all duration-150 cursor-grab active:cursor-grabbing hover:border-zinc-700/90 hover:bg-zinc-900 hover:shadow-md ${
+      className={`group relative rounded-lg border bg-zinc-900/80 p-3.5 shadow-xs transition-all duration-150 ${
+        isDraggable ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'
+      } hover:border-zinc-700/90 hover:bg-zinc-900 hover:shadow-md ${
         isDragging
           ? 'opacity-40 border-dashed border-zinc-600 scale-[0.98]'
           : 'border-zinc-800/90'
@@ -47,9 +53,11 @@ export function TaskCard({
           <PriorityBadge priority={task.priority} />
         </div>
 
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-400">
-          <GripVertical className="w-3.5 h-3.5" />
-        </div>
+        {isDraggable && (
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-400">
+            <GripVertical className="w-3.5 h-3.5" />
+          </div>
+        )}
       </div>
 
       {/* Title */}

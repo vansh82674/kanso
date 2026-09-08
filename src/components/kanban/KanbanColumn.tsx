@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ColumnDefinition, Task, WorkspaceMember } from '../../types';
+import { ColumnDefinition, Task, WorkspaceMember, User } from '../../types';
 import { TaskCard } from './TaskCard';
 import { TaskCardSkeleton } from './TaskCardSkeleton';
 import { Plus } from 'lucide-react';
@@ -11,6 +11,8 @@ interface KanbanColumnProps {
   column: ColumnDefinition;
   tasks: Task[];
   members: WorkspaceMember[];
+  currentUser: User | null;
+  isPrivileged: boolean;
   onTaskClick: (task: Task) => void;
   onAddTask: (status: ColumnDefinition['id']) => void;
   onDragStart: (e: React.DragEvent, task: Task) => void;
@@ -24,6 +26,8 @@ export function KanbanColumn({
   column,
   tasks,
   members,
+  currentUser,
+  isPrivileged,
   onTaskClick,
   onAddTask,
   onDragStart,
@@ -97,11 +101,14 @@ export function KanbanColumn({
           <>
             {tasks.map((task) => {
               const assignee = members.find((m) => m.id === task.assigneeId);
+              const isDraggable = isPrivileged || task.assigneeId === currentUser?.id;
+              
               return (
                 <TaskCard
                   key={task.id}
                   task={task}
                   assignee={assignee}
+                  isDraggable={isDraggable}
                   onClick={() => onTaskClick(task)}
                   onDragStart={onDragStart}
                   onDragEnd={onDragEnd}

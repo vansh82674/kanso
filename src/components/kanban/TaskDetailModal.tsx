@@ -7,7 +7,7 @@ import { Input, Textarea } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { PriorityBadge } from '../ui/Badge';
 import { Avatar } from '../ui/Avatar';
-import { Task, TaskPriority, TaskStatus, WorkspaceMember, SubTask } from '../../types';
+import { Task, TaskPriority, TaskStatus, WorkspaceMember, SubTask, User } from '../../types';
 import { COLUMNS } from '../../data/initialData';
 import { generateId, formatDate, isOverdue } from '../../lib/utils';
 import {
@@ -17,7 +17,7 @@ import {
   Plus,
   Tag,
   Trash2,
-  User,
+  User as UserIcon,
   X,
   Copy,
   AlertTriangle,
@@ -29,6 +29,8 @@ interface TaskDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   members: WorkspaceMember[];
+  currentUser: User | null;
+  isPrivileged: boolean;
   onUpdateTask: (task: Task) => void;
   onDeleteTask: (taskId: string) => void;
   onDuplicateTask: (task: Task) => void;
@@ -39,6 +41,8 @@ export function TaskDetailModal({
   isOpen,
   onClose,
   members,
+  currentUser,
+  isPrivileged,
   onUpdateTask,
   onDeleteTask,
   onDuplicateTask,
@@ -114,9 +118,23 @@ export function TaskDetailModal({
   };
 
   const handleToggleSubtask = (stId: string) => {
-    setSubtasks(
-      subtasks.map((st) => (st.id === stId ? { ...st, completed: !st.completed } : st))
-    );
+    const updatedSubtasks = subtasks.map((st) => (st.id === stId ? { ...st, completed: !st.completed } : st));
+    setSubtasks(updatedSubtasks);
+
+    // Auto-update status based on subtask progress
+    const completedCount = updatedSubtasks.filter(st => st.completed).length;
+    const totalCount = updatedSubtasks.length;
+
+    if (completedCount === 1 && subtasks.filter(st => st.completed).length === 0 && status === 'todo') {
+      // First task started
+      handleStatusChange('in_progress');
+    } else if (completedCount === totalCount && totalCount > 0 && status !== 'done') {
+      // All tasks completed
+      handleStatusChange('done');
+    } else if (completedCount < totalCount && status === 'done') {
+      // Unchecked a task when it was done
+      handleStatusChange('in_progress');
+    }
   };
 
   const handleDeleteSubtask = (stId: string) => {
@@ -232,7 +250,8 @@ export function TaskDetailModal({
             <select
               value={status}
               onChange={(e) => handleStatusChange(e.target.value as TaskStatus)}
-              className="w-full h-8 px-2.5 rounded border  bg-zinc-900 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-500"
+              disabled={!isPrivileged && task.assigneeId !== currentUser?.id}
+              className="w-full h-8 px-2.5 rounded border bg-zinc-900 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {COLUMNS.map((col) => (
                 <option key={col.id} value={col.id}>
@@ -250,7 +269,8 @@ export function TaskDetailModal({
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as TaskPriority)}
-              className="w-full h-8 px-2.5 rounded border bg-zinc-900 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-500"
+              disabled={!isPrivileged && task.assigneeId !== currentUser?.id}
+              className="w-full h-8 px-2.5 rounded border bg-zinc-900 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <option value="urgent">Urgent</option>
               <option value="high">High</option>
@@ -267,7 +287,8 @@ export function TaskDetailModal({
             <select
               value={assigneeId || ''}
               onChange={(e) => setAssigneeId(e.target.value || undefined)}
-              className="w-full h-8 px-2.5 rounded border bg-zinc-900 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-500"
+              disabled={!isPrivileged}
+              className="w-full h-8 px-2.5 rounded border bg-zinc-900 text-xs font-mono text-zinc-200 focus:outline-none focus:border-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <option value="">Unassigned</option>
               {members.map((m) => (

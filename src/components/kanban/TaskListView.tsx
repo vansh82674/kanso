@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Task, WorkspaceMember, TaskStatus } from '../../types';
+import { Task, WorkspaceMember, TaskStatus, User } from '../../types';
 import { PriorityBadge } from '../ui/Badge';
 import { Avatar } from '../ui/Avatar';
 import { formatDate, isOverdue } from '../../lib/utils';
@@ -11,6 +11,8 @@ import { CheckSquare, Calendar } from 'lucide-react';
 interface TaskListViewProps {
   tasks: Task[];
   members: WorkspaceMember[];
+  currentUser: User | null;
+  isPrivileged: boolean;
   onTaskClick: (task: Task) => void;
   onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
 }
@@ -18,6 +20,8 @@ interface TaskListViewProps {
 export function TaskListView({
   tasks,
   members,
+  currentUser,
+  isPrivileged,
   onTaskClick,
   onStatusChange,
 }: TaskListViewProps) {
@@ -49,7 +53,8 @@ export function TaskListView({
                   <select
                     value={task.status}
                     onChange={(e) => onStatusChange(task.id, e.target.value as TaskStatus)}
-                    className="bg-zinc-900 border border-zinc-800 text-zinc-200 text-[11px] font-mono rounded px-2 py-1 focus:outline-none focus:border-zinc-500"
+                    disabled={!isPrivileged && task.assigneeId !== currentUser?.id}
+                    className="bg-zinc-900 border border-zinc-800 text-zinc-200 text-[11px] font-mono rounded px-2 py-1 focus:outline-none focus:border-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {COLUMNS.map((col) => (
                       <option key={col.id} value={col.id}>
@@ -164,7 +169,8 @@ export function TaskListView({
                     <select
                       value={task.status}
                       onChange={(e) => onStatusChange(task.id, e.target.value as TaskStatus)}
-                      className="bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded px-2 py-1 focus:outline-none focus:border-zinc-500 cursor-pointer"
+                      disabled={!isPrivileged && task.assigneeId !== currentUser?.id}
+                      className="bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded px-2 py-1 focus:outline-none focus:border-zinc-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {COLUMNS.map((col) => (
                         <option key={col.id} value={col.id}>

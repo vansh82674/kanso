@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ColumnDefinition, Task, Workspace, WorkspaceMember, TaskStatus } from '../../types';
+import { ColumnDefinition, Task, Workspace, WorkspaceMember, TaskStatus, User } from '../../types';
 import { COLUMNS } from '../../data/initialData';
 import { KanbanColumn } from './KanbanColumn';
 import { TaskListView } from './TaskListView';
@@ -24,11 +24,13 @@ interface KanbanBoardProps {
   onOpenNewTaskModal: (status?: TaskStatus) => void;
   newTaskInitialStatus?: TaskStatus;
   isLoadingData?: boolean;
+  currentUser: User | null;
 }
 
 export function KanbanBoard({
   workspace,
   tasks,
+  currentUser,
   onTasksUpdate,
   viewMode,
   searchQuery,
@@ -43,6 +45,9 @@ export function KanbanBoard({
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [mobileColumnFilter, setMobileColumnFilter] = useState<'all' | TaskStatus>('all');
+
+  const currentUserRole = workspace.members.find((m) => m.id === currentUser?.id)?.role;
+  const isPrivileged = currentUserRole === 'OWNER' || currentUserRole === 'ADMIN';
 
   // Filter tasks belonging to current workspace and matching query/filters
   const workspaceTasks = tasks.filter((t) => t.workspaceId === workspace.id);
@@ -96,6 +101,13 @@ export function KanbanBoard({
       return;
     }
 
+    // Enforce drag and drop restrictions
+    const isAssignee = taskToMove.assigneeId === currentUser?.id;
+    if (!isPrivileged && !isAssignee) {
+      setDraggingTaskId(null);
+      return;
+    }
+
     const updatedTasks = tasks.map((t) =>
       t.id === taskId
         ? { ...t, status: targetStatus, updatedAt: new Date().toISOString() }
@@ -116,6 +128,13 @@ export function KanbanBoard({
   };
 
   const handleStatusChangeFromList = (taskId: string, targetStatus: TaskStatus) => {
+    const taskToMove = tasks.find((t) => t.id === taskId);
+    if (!taskToMove) return;
+
+    // Enforce restrictions
+    const isAssignee = taskToMove.assigneeId === currentUser?.id;
+    if (!isPrivileged && !isAssignee) return;
+
     const updatedTasks = tasks.map((t) =>
       t.id === taskId
         ? { ...t, status: targetStatus, updatedAt: new Date().toISOString() }
@@ -260,6 +279,8 @@ export function KanbanBoard({
                       column={col}
                       tasks={columnTasks}
                       members={workspace.members}
+                      currentUser={currentUser}
+                      isPrivileged={isPrivileged}
                       onTaskClick={(task) => setSelectedTask(task)}
                       onAddTask={(status) => onOpenNewTaskModal(status)}
                       onDragStart={handleDragStart}
@@ -277,6 +298,8 @@ export function KanbanBoard({
           <TaskListView
             tasks={filteredTasks}
             members={workspace.members}
+            currentUser={currentUser}
+            isPrivileged={isPrivileged}
             onTaskClick={(task) => setSelectedTask(task)}
             onStatusChange={handleStatusChangeFromList}
           />
@@ -290,6 +313,8 @@ export function KanbanBoard({
           isOpen={Boolean(selectedTask)}
           onClose={() => setSelectedTask(null)}
           members={workspace.members}
+          currentUser={currentUser}
+          isPrivileged={isPrivileged}
           onUpdateTask={handleUpdateTask}
           onDeleteTask={handleDeleteTask}
           onDuplicateTask={handleDuplicateTask}

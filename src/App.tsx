@@ -416,6 +416,7 @@ export default function App() {
         <KanbanBoard
           workspace={currentWorkspace}
           tasks={tasks}
+          currentUser={currentUser}
           onTasksUpdate={handleTasksUpdate}
           viewMode={viewMode}
           searchQuery={searchQuery}
