@@ -63,7 +63,7 @@ export function CreateWorkspaceModal({
               id: currentUser.id,
               name: currentUser.name,
               email: currentUser.email,
-              role: 'admin',
+              role: 'ADMIN',
               avatar: currentUser.avatar,
               joinedAt: new Date().toISOString().split('T')[0],
             },

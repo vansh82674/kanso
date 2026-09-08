@@ -24,7 +24,7 @@ export interface Task {
   updatedAt: string;
 }
 
-export type MemberRole = 'admin' | 'member' | 'viewer';
+export type MemberRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'VIEWER';
 
 export interface WorkspaceMember {
   id: string;

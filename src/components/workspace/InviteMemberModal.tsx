@@ -29,7 +29,7 @@ export function InviteMemberModal({
   onUpdateMemberRole,
 }: InviteMemberModalProps) {
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState<MemberRole>('member');
+  const [role, setRole] = useState<MemberRole>('MEMBER');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
   const [isInviting, setIsInviting] = useState(false);
@@ -209,7 +209,7 @@ export function InviteMemberModal({
                   <div className="min-w-0">
                     <div className="text-xs font-medium text-zinc-200 truncate flex items-center gap-1.5">
                       {m.name}
-                      {m.role === 'admin' && (
+                      {m.role === 'ADMIN' && (
                         <span className="text-[10px] font-mono text-blue-400 bg-blue-950/40 px-1 py-0.5 rounded border border-blue-800/40">
                           Admin
                         </span>
