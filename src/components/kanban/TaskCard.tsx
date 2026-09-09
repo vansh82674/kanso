@@ -37,7 +37,7 @@ export function TaskCard({
       onDragEnd={onDragEnd}
       onClick={onClick}
       className={`group relative rounded-lg border bg-zinc-900/80 p-3.5 shadow-xs transition-all duration-150 ${
-        isDraggable ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'
+        isDraggable ? 'cursor-grab' : 'cursor-pointer'
       } hover:border-zinc-700/90 hover:bg-zinc-900 hover:shadow-md ${
         isDragging
           ? 'opacity-40 border-dashed border-zinc-600 scale-[0.98]'

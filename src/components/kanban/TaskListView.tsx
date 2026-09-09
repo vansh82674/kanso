@@ -54,7 +54,7 @@ export function TaskListView({
                     value={task.status}
                     onChange={(e) => onStatusChange(task.id, e.target.value as TaskStatus)}
                     disabled={!isPrivileged && task.assigneeId !== currentUser?.id}
-                    className="bg-zinc-900 border border-zinc-800 text-zinc-200 text-[11px] font-mono rounded px-2 py-1 focus:outline-none focus:border-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="bg-zinc-900 border border-zinc-800 text-zinc-200 text-[11px] font-mono rounded px-2 py-1 focus:outline-none disabled:opacity-50"
                   >
                     {COLUMNS.map((col) => (
                       <option key={col.id} value={col.id}>
@@ -94,7 +94,7 @@ export function TaskListView({
                   )}
                 </div>
 
-                <div className="flex items-center gap-3 flex-shrink-0 text-[11px]">
+                <div className="flex items-center gap-3 shrink-0 text-[11px]">
                   {task.dueDate && (
                     <span className={`flex items-center gap-1 ${overdue ? 'text-rose-400 font-medium' : 'text-zinc-400'}`}>
                       <Calendar className="w-3 h-3" />
@@ -170,7 +170,7 @@ export function TaskListView({
                       value={task.status}
                       onChange={(e) => onStatusChange(task.id, e.target.value as TaskStatus)}
                       disabled={!isPrivileged && task.assigneeId !== currentUser?.id}
-                      className="bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded px-2 py-1 focus:outline-none focus:border-zinc-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded px-2 py-1 focus:outline-none disabled:opacity-50"
                     >
                       {COLUMNS.map((col) => (
                         <option key={col.id} value={col.id}>
