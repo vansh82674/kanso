@@ -1,6 +1,7 @@
 {
-  "/api/workspaces/route": "app/api/workspaces/route.js",
   "/api/tasks/route": "app/api/tasks/route.js",
+  "/api/tasks/[id]/ai-subtasks/route": "app/api/tasks/[id]/ai-subtasks/route.js",
   "/api/tasks/[id]/route": "app/api/tasks/[id]/route.js",
+  "/login/page": "app/login/page.js",
   "/dashboard/page": "app/dashboard/page.js"
 }

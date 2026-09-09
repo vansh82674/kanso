@@ -119,6 +119,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../app/api/tasks/[id]/ai-subtasks/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/tasks/[id]/ai-subtasks">> = Specific
+  const handler = {} as typeof import("../../app/api/tasks/[id]/ai-subtasks/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../app/api/tasks/[id]/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/tasks/[id]">> = Specific

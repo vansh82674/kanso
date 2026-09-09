@@ -396,6 +396,9 @@
   .block {
     display: block;
   }
+  .contents {
+    display: contents;
+  }
   .flex {
     display: flex;
   }
@@ -1776,6 +1779,9 @@
       .hover\:bg-zinc-900\/70:hover {
         background-color: color-mix(in oklab, var(--color-zinc-900) 70%, transparent);
       }
+    }
+    .hover\:text-emerald-300:hover {
+      color: var(--color-emerald-300);
     }
     .hover\:text-rose-300:hover {
       color: var(--color-rose-300);
