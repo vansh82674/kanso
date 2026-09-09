@@ -11,8 +11,11 @@ A high-throughput, modern Trello-like team productivity workspace engineered wit
 - **Dynamic Workspaces**: Create multi-tenant projects with unique colors and switch between them instantly.
 - **Secure Workspace Invitations**: A robust, opt-in invite system that generates secure tokens (`/join?token=...`) with a dedicated landing page for users to accept or decline invites.
 - **Real-time Kanban Engine**: Drag-and-drop tasks across columns. Changes are saved instantly to the database.
+- **Role-Based Access Control (RBAC)**: Secure board state and task actions based on workspace member roles (Owner, Admin, Member, Viewer). Only assignees and privileged roles can edit tasks or change status.
+- **AI Task Breakdown (Google Gemini)**: Automatically generate intelligent subtasks for any ticket using `gemini-3.6-flash`.
+- **Live Assignment Notifications**: Native `react-hot-toast` notifications trigger instantly via Supabase `postgres_changes` channels when work is delegated to you.
 - **Task Management**: Create, edit, duplicate, and safely delete tasks via custom, sleek confirmation modals.
-- **UI & UX Polish**: Features beautiful loading skeletons, global `react-hot-toast` notifications, and custom scrollbars.
+- **UI & UX Polish**: Features beautiful loading skeletons, global notifications, and custom scrollbars.
 
 ---
 
