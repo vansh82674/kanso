@@ -141,19 +141,32 @@ export default function App() {
             });
           } else if (payload.eventType === 'UPDATE') {
             const updatedTask = payload.new as any;
-            setTasks((prev) => prev.map((t) => {
-              if (t.id === updatedTask.id) {
-                return {
-                  ...t,
-                  ...updatedTask,
-                  status: updatedTask.status?.toLowerCase(),
-                  priority: updatedTask.priority?.toLowerCase(),
-                  tags: updatedTask.tags || t.tags || [],
-                  subtasks: t.subtasks || [],
-                };
+            setTasks((prev) => {
+              const oldTask = prev.find((t) => t.id === updatedTask.id);
+              if (
+                oldTask &&
+                oldTask.assigneeId !== updatedTask.assigneeId &&
+                updatedTask.assigneeId === currentUser?.id
+              ) {
+                toast.success(`You were assigned: ${updatedTask.title}`, {
+                  icon: '👋',
+                });
               }
-              return t;
-            }));
+              
+              return prev.map((t) => {
+                if (t.id === updatedTask.id) {
+                  return {
+                    ...t,
+                    ...updatedTask,
+                    status: updatedTask.status?.toLowerCase(),
+                    priority: updatedTask.priority?.toLowerCase(),
+                    tags: updatedTask.tags || t.tags || [],
+                    subtasks: t.subtasks || [],
+                  };
+                }
+                return t;
+              });
+            });
           } else if (payload.eventType === 'DELETE') {
             const deletedTask = payload.old as any;
             setTasks((prev) => prev.filter((t) => t.id !== deletedTask.id));
@@ -168,7 +181,7 @@ export default function App() {
       isMounted = false;
       supabase.removeChannel(channel);
     };
-  }, [currentWorkspaceId, supabase]);
+  }, [currentWorkspaceId, supabase, currentUser?.id]);
 
   // Keyboard shortcut listener: 'N' for new task
   useEffect(() => {

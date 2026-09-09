@@ -21,6 +21,8 @@ import {
   X,
   Copy,
   AlertTriangle,
+  Sparkles,
+  Loader2,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -60,6 +62,7 @@ export function TaskDetailModal({
   const [subtasks, setSubtasks] = useState<SubTask[]>(task.subtasks);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Keep state synced when task changes
   React.useEffect(() => {
@@ -139,6 +142,30 @@ export function TaskDetailModal({
 
   const handleDeleteSubtask = (stId: string) => {
     setSubtasks(subtasks.filter((st) => st.id !== stId));
+  };
+
+  const handleGenerateSubtasks = async () => {
+    setIsGenerating(true);
+    try {
+      const res = await fetch(`/api/tasks/${task.id}/ai-subtasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'append' }),
+      });
+      
+      if (!res.ok) {
+        throw new Error(await res.text());
+      }
+      
+      const updatedTask = await res.json();
+      setSubtasks(updatedTask.subtasks);
+      onUpdateTask(updatedTask);
+    } catch (err) {
+      console.error('Failed to generate subtasks:', err);
+      // Fallback: toast could be used here if imported
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleSaveChanges = () => {
@@ -364,7 +391,23 @@ export function TaskDetailModal({
               <CheckSquare className="w-3.5 h-3.5" />
               SUBTASKS ({completedSubtasksCount}/{subtasks.length})
             </span>
-            <span>{subtaskProgress}% done</span>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleGenerateSubtasks}
+                disabled={isGenerating || !isPrivileged}
+                className="text-[10px] flex items-center gap-1 text-emerald-400 hover:text-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title={!isPrivileged ? "Only admins can use AI features" : "Auto-generate subtasks using AI"}
+              >
+                {isGenerating ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Sparkles className="w-3 h-3" />
+                )}
+                {isGenerating ? 'GENERATING...' : 'AUTO-GENERATE'}
+              </button>
+              <span>{subtaskProgress}% done</span>
+            </div>
           </div>
 
           {/* Progress bar */}
