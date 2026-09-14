@@ -2,13 +2,13 @@ import { prisma } from '../../../../../lib/prisma';
 import { requireAuth } from '../../../../../lib/auth-utils';
 import { GoogleGenAI } from '@google/genai';
 
-async function checkTaskAccess(taskId: string, userId: string) {
+async function checkTaskAccess(taskId: string, userId: string): Promise<'NOT_FOUND' | 'FORBIDDEN' | { task: any; role: string }> {
   const task = await prisma.task.findUnique({
     where: { id: taskId },
     select: { workspaceId: true, title: true, description: true },
   });
 
-  if (!task) return null;
+  if (!task) return 'NOT_FOUND';
 
   const member = await prisma.workspaceMember.findUnique({
     where: {
@@ -19,7 +19,7 @@ async function checkTaskAccess(taskId: string, userId: string) {
     },
   });
 
-  if (!member) return null;
+  if (!member) return 'FORBIDDEN';
   return { task, role: member.role };
 }
 
@@ -33,7 +33,10 @@ export async function POST(
     const { id } = await params;
 
     const access = await checkTaskAccess(id, dbUser.id);
-    if (!access) {
+    if (access === 'NOT_FOUND') {
+      return Response.json({ error: 'Task not found' }, { status: 404 });
+    }
+    if (access === 'FORBIDDEN') {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 

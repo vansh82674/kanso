@@ -1,13 +1,13 @@
 import { prisma } from '../../../../../lib/prisma';
 import { requireAuth } from '../../../../../lib/auth-utils';
 
-async function checkTaskAccess(taskId: string, userId: string) {
+async function checkTaskAccess(taskId: string, userId: string): Promise<'NOT_FOUND' | 'FORBIDDEN' | 'OK'> {
   const task = await prisma.task.findUnique({
     where: { id: taskId },
     select: { workspaceId: true },
   });
 
-  if (!task) return false;
+  if (!task) return 'NOT_FOUND';
 
   const member = await prisma.workspaceMember.findUnique({
     where: {
@@ -18,7 +18,7 @@ async function checkTaskAccess(taskId: string, userId: string) {
     },
   });
 
-  return !!member;
+  return member ? 'OK' : 'FORBIDDEN';
 }
 
 export async function GET(
@@ -29,7 +29,11 @@ export async function GET(
     const { dbUser } = await requireAuth();
     const { id } = await Promise.resolve(params);
 
-    if (!(await checkTaskAccess(id, dbUser.id))) {
+    const access = await checkTaskAccess(id, dbUser.id);
+    if (access === 'NOT_FOUND') {
+      return Response.json({ error: 'Task not found' }, { status: 404 });
+    }
+    if (access === 'FORBIDDEN') {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -65,7 +69,11 @@ export async function POST(
     const { dbUser } = await requireAuth();
     const { id } = await Promise.resolve(params);
 
-    if (!(await checkTaskAccess(id, dbUser.id))) {
+    const access = await checkTaskAccess(id, dbUser.id);
+    if (access === 'NOT_FOUND') {
+      return Response.json({ error: 'Task not found' }, { status: 404 });
+    }
+    if (access === 'FORBIDDEN') {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 

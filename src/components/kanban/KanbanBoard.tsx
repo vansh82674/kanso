@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ColumnDefinition, Task, Workspace, WorkspaceMember, TaskStatus, User } from '../../types';
 import { COLUMNS } from '../../data/initialData';
 import { KanbanColumn } from './KanbanColumn';
@@ -45,6 +45,16 @@ export function KanbanBoard({
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [mobileColumnFilter, setMobileColumnFilter] = useState<'all' | TaskStatus>('all');
+
+  // Keep selectedTask up to date with the tasks array (useful if task ID or fields change from the server)
+  useEffect(() => {
+    if (selectedTask) {
+      const latestTask = tasks.find((t) => t.ticketId === selectedTask.ticketId);
+      if (latestTask && JSON.stringify(latestTask) !== JSON.stringify(selectedTask)) {
+        setSelectedTask(latestTask);
+      }
+    }
+  }, [tasks, selectedTask]);
 
   const currentUserRole = workspace.members.find((m) => m.id === currentUser?.id)?.role;
   const isPrivileged = currentUserRole === 'OWNER' || currentUserRole === 'ADMIN';
